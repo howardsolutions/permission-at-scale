@@ -5,13 +5,6 @@ import { getCurrentUser } from "@/lib/session"
 import { eq } from "drizzle-orm"
 
 export async function createDocument(data: DocumentInsertData) {
-  // PERMISSION:
-  const user = await getCurrentUser()
-
-  if (user == null || user.role === "editor" || user.role === "viewer") {
-    throw new AuthorizationError()
-  }
-
   const [document] = await db
     .insert(DocumentTable)
     .values(data)
