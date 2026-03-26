@@ -211,3 +211,9 @@ npm run db:push
 - `npm run db:push` - Push schema changes to database
 - `npm run db:seed` - Seed database with sample data
 - `npm run db:studio` - Open Drizzle Studio (database GUI)
+
+### Service Layer
+
+- handles BOTH authorization (checking if the user has permission to perform an action) and execution (performing the actual database call or operation). 
+
+It serves as a single layer that centralizes both authorization checks and business logic.

@@ -1,14 +1,9 @@
 "use server"
 
-import {
-  deleteDocument,
-  updateDocument
-} from "@/dal/documents/mutations"
 import { tryFn } from "@/lib/helpers"
-import { getCurrentUser } from "@/lib/session"
 import { createDocumentService, deleteDocumentService, updateDocumentActionService } from "@/services/document"
 import { redirect } from "next/navigation"
-import { documentSchema, type DocumentFormValues } from "../schemas/documents"
+import { type DocumentFormValues } from "../schemas/documents"
 
 export async function createDocumentAction(
   projectId: string,
@@ -26,7 +21,7 @@ export async function updateDocumentAction(
   projectId: string,
   data: DocumentFormValues,
 ) {
-  const [error, updatedDocment] = await tryFn(() =>
+  const [error, _] = await tryFn(() =>
     updateDocumentActionService(documentId, data)
   )
 
