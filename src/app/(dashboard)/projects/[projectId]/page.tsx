@@ -14,6 +14,7 @@ import { getStatusBadgeVariant } from '@/lib/helpers';
 import { getProjectById } from '@/dal/projects/queries';
 import { getProjectDocuments } from '@/dal/documents/queries';
 import { getCurrentUser } from '@/lib/session';
+import { can } from '@/permissions/rbac';
 
 export default async function ProjectDocumentsPage({
   params,
@@ -45,22 +46,20 @@ export default async function ProjectDocumentsPage({
           )}
         </div>
         <div className='flex gap-2'>
-          {/* PERMISSION: */}
-          {user?.role === 'admin' && (
+          {can(user, 'project:update') && (
             <Button asChild variant='outline'>
               <Link href={`/projects/${projectId}/edit`}>Edit Project</Link>
             </Button>
           )}
-          {/* PERMISSION: */}
-          {user?.role === 'author' ||
-            (user?.role === 'admin' && (
-              <Button asChild>
-                <Link href={`/projects/${projectId}/documents/new`}>
-                  <PlusIcon className='size-4' />
-                  New Document
-                </Link>
-              </Button>
-            ))}
+
+          {can(user, 'document:create') && (
+            <Button asChild>
+              <Link href={`/projects/${projectId}/documents/new`}>
+                <PlusIcon className='size-4' />
+                New Document
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -72,16 +71,14 @@ export default async function ProjectDocumentsPage({
             <p className='text-muted-foreground mb-4'>
               Create your first document in this project.
             </p>
-            {/* PERMISSION: */}
-            {user?.role === 'author' ||
-              (user?.role === 'admin' && (
-                <Button asChild>
-                  <Link href={`/projects/${projectId}/documents/new`}>
-                    <PlusIcon className='size-4 mr-2' />
-                    New Document
-                  </Link>
-                </Button>
-              ))}
+            {can(user, 'document:create') && (
+              <Button asChild>
+                <Link href={`/projects/${projectId}/documents/new`}>
+                  <PlusIcon className='size-4 mr-2' />
+                  New Document
+                </Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
       ) : (

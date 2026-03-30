@@ -10,6 +10,7 @@ import { getStatusBadgeVariant } from '@/lib/helpers';
 import { getDocumentWithUserInfo } from '@/dal/documents/queries';
 import { getCurrentUser } from '@/lib/session';
 import { getProjectById } from '@/dal/projects/queries';
+import { can } from '@/permissions/rbac';
 
 export default async function DocumentDetailPage({
   params,
@@ -56,10 +57,7 @@ export default async function DocumentDetailPage({
           </div>
         </div>
         <div className='flex gap-2'>
-          {/* PERMISSION: */}
-          {(user?.role === 'author' ||
-            user?.role === 'editor' ||
-            user?.role === 'admin') && (
+          {can(user, 'document:update') && (
             <Button variant='outline' asChild>
               <Link
                 href={`/projects/${projectId}/documents/${documentId}/edit`}
@@ -69,8 +67,8 @@ export default async function DocumentDetailPage({
               </Link>
             </Button>
           )}
-          {/* PERMISSION: */}
-          {user?.role === 'admin' && (
+
+          {can(user, 'document:delete') && (
             <ActionButton
               variant='destructive'
               requireAreYouSure

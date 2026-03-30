@@ -14,6 +14,7 @@ import {
 import { getProjectById } from '@/dal/projects/queries';
 import { ProjectForm } from '@/components/project-form';
 import { getCurrentUser } from '@/lib/session';
+import { can } from '@/permissions/rbac';
 
 export default async function EditProjectPage({
   params,
@@ -25,8 +26,7 @@ export default async function EditProjectPage({
 
   const user = await getCurrentUser();
 
-  // PERMISSION:
-  if (user === null || user?.role !== 'admin') {
+  if (!can(user, 'project:update')) {
     return redirect('/');
   }
 
@@ -47,26 +47,24 @@ export default async function EditProjectPage({
 
       <div className='max-w-2xl space-y-6'>
         <ProjectForm project={project} />
-        {/* PERMISSION */}
-        {user.role == 'admin' && (
-          <Card className='border-destructive'>
-            <CardHeader>
-              <CardTitle className='text-destructive'>Danger Zone</CardTitle>
-              <CardDescription>
-                Permanently delete this project and all its documents.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ActionButton
-                variant='destructive'
-                requireAreYouSure
-                action={deleteProjectAction.bind(null, projectId)}
-              >
-                Delete Project
-              </ActionButton>
-            </CardContent>
-          </Card>
-        )}
+
+        <Card className='border-destructive'>
+          <CardHeader>
+            <CardTitle className='text-destructive'>Danger Zone</CardTitle>
+            <CardDescription>
+              Permanently delete this project and all its documents.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ActionButton
+              variant='destructive'
+              requireAreYouSure
+              action={deleteProjectAction.bind(null, projectId)}
+            >
+              Delete Project
+            </ActionButton>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { getProjectById } from '@/dal/projects/queries';
 import { getDocumentById } from '@/dal/documents/queries';
 import { DocumentForm } from '@/components/document-form';
 import { getCurrentUser } from '@/lib/session';
+import { can } from '@/permissions/rbac';
 
 export default async function EditDocumentPage({
   params,
@@ -29,8 +30,7 @@ export default async function EditDocumentPage({
     return redirect('/');
   }
 
-  // PERMISSION:
-  if (user.role === 'viewer') {
+  if (!can(user, 'document:update')) {
     return redirect('/');
   }
 

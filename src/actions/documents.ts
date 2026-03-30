@@ -1,7 +1,7 @@
 "use server"
 
 import { tryFn } from "@/lib/helpers"
-import { createDocumentService, deleteDocumentService, updateDocumentActionService } from "@/services/document"
+import { createDocumentService, deleteDocumentService, updateDocumentService } from "@/services/document"
 import { redirect } from "next/navigation"
 import { type DocumentFormValues } from "../schemas/documents"
 
@@ -22,7 +22,7 @@ export async function updateDocumentAction(
   data: DocumentFormValues,
 ) {
   const [error, _] = await tryFn(() =>
-    updateDocumentActionService(documentId, data)
+    updateDocumentService(documentId, data)
   )
 
   if (error) return error
