@@ -64,7 +64,7 @@ export async function getAllProjectsService({ ordered } = { ordered: false }) {
 
   const user = await getCurrentUser()
 
-  if (!can(user, "project:read:all")) throw new AuthorizationError()
+  if (!user) throw new AuthorizationError()
 
   return getAllProjects({ ordered, where: userWhereClause(user) })
 }

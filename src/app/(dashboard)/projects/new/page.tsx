@@ -4,12 +4,13 @@ import { ArrowLeftIcon } from 'lucide-react';
 import { ProjectForm } from '@/components/project-form';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/session';
+import { can } from '@/permissions/rbac';
 
 export default async function NewProjectPage() {
   const user = await getCurrentUser();
 
   // PERMISSION:
-  if (user === null || user?.role !== 'admin') {
+  if (!can(user, 'project:create')) {
     return redirect('/');
   }
 

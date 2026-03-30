@@ -1,8 +1,8 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { FolderIcon, PlusIcon } from "lucide-react"
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { FolderIcon, PlusIcon } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -12,66 +12,66 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Project, User } from "@/drizzle/schema"
+} from '@/components/ui/sidebar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Project, User } from '@/drizzle/schema';
+import { can } from '@/permissions/rbac';
 
 type AppSidebarProps = {
-  projects: Pick<Project, "id" | "name" | "department">[]
-  user: Pick<User, "role"> | null
-}
+  projects: Pick<Project, 'id' | 'name' | 'department'>[];
+  user: Pick<User, 'role'> | null;
+};
 
 export function AppSidebar({ projects, user }: AppSidebarProps) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center justify-between">
+          <SidebarGroupLabel className='flex items-center justify-between'>
             Projects
-            {/* PERMISSION: */}
-            {user?.role === "admin" && (
-              <Button variant="ghost" size="icon-xs" asChild>
-                <Link href="/projects/new">
-                  <PlusIcon className="size-4" />
-                  <span className="sr-only">New Project</span>
+            {can(user, 'project:create') && (
+              <Button variant='ghost' size='icon-xs' asChild>
+                <Link href='/projects/new'>
+                  <PlusIcon className='size-4' />
+                  <span className='sr-only'>New Project</span>
                 </Link>
               </Button>
             )}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {projects.map(project => {
-                const isActive = pathname.startsWith(`/projects/${project.id}`)
+              {projects.map((project) => {
+                const isActive = pathname.startsWith(`/projects/${project.id}`);
                 return (
                   <SidebarMenuItem key={project.id}>
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}
-                      className="h-auto"
+                      className='h-auto'
                     >
                       <Link
                         href={`/projects/${project.id}`}
-                        className="flex items-start gap-2"
+                        className='flex items-start gap-2'
                       >
-                        <FolderIcon className="size-4 mt-0.5" />
-                        <div className="flex flex-col gap-1">
+                        <FolderIcon className='size-4 mt-0.5' />
+                        <div className='flex flex-col gap-1'>
                           <span>{project.name}</span>
-                          <Badge variant="outline" className="text-xs w-fit">
-                            {project.department || "All"}
+                          <Badge variant='outline' className='text-xs w-fit'>
+                            {project.department || 'All'}
                           </Badge>
                         </div>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                )
+                );
               })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }

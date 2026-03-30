@@ -48,23 +48,25 @@ export default async function EditProjectPage({
       <div className='max-w-2xl space-y-6'>
         <ProjectForm project={project} />
 
-        <Card className='border-destructive'>
-          <CardHeader>
-            <CardTitle className='text-destructive'>Danger Zone</CardTitle>
-            <CardDescription>
-              Permanently delete this project and all its documents.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ActionButton
-              variant='destructive'
-              requireAreYouSure
-              action={deleteProjectAction.bind(null, projectId)}
-            >
-              Delete Project
-            </ActionButton>
-          </CardContent>
-        </Card>
+        {can(user, 'project:delete') && (
+          <Card className='border-destructive'>
+            <CardHeader>
+              <CardTitle className='text-destructive'>Danger Zone</CardTitle>
+              <CardDescription>
+                Permanently delete this project and all its documents.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ActionButton
+                variant='destructive'
+                requireAreYouSure
+                action={deleteProjectAction.bind(null, projectId)}
+              >
+                Delete Project
+              </ActionButton>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
