@@ -1,17 +1,38 @@
 import { getAllProjects } from "@/dal/projects/queries";
 import { Document, Project, ProjectTable, User } from "@/drizzle/schema"
+import { getCurrentUser } from "@/lib/session";
 import { eq, isNull, or } from "drizzle-orm";
+import { cache } from "react";
 
-function getUserPermission(user: Pick<User, "department" | "role">) {
+export const getUserPermission = cache(getUserPermissionInternal)
+
+async function getUserPermissionInternal() {
+    const user = await getCurrentUser()
+
     const builder = new PermissionBuilder()
+
+    if (user == null) {
+        // can() always return false, because user has no permissions
+        return builder.build()
+    }
 
     const role = user.role;
 
     switch (role) {
         case "admin":
             addAdminPermission(builder)
+            break;
+
         case "editor":
             addEditorPermission(builder, user)
+            break;
+
+        case "viewer":
+        case "author":
+            break;
+
+        default:
+            throw new Error(`Unhandled role: ${role satisfies never}`)
     }
 }
 
@@ -21,6 +42,7 @@ function addAdminPermission(builder: PermissionBuilder) {
         .allow("document", "update")
         .allow("document", "delete")
         .allow("document", "create")
+
         .allow("project", "read")
         .allow("project", "update")
         .allow("project", "delete")
@@ -50,8 +72,6 @@ async function getDepartmentProjects(department: string) {
     });
 }
 
-}
-
 type Resources = {
     project: {
         action: "create" | "read" | "update" | "delete",
@@ -78,11 +98,33 @@ class PermissionBuilder {
         project: []
     }
 
-    allow<Res extends keyof Resources>(resourse: Res,
+    allow<Res extends keyof Resources>(
+        resourse: Res,
         action: Permission<Res>["action"],
         condition?: Permission<Res>["condition"]) {
         this.#permissions[resourse].push({ action, condition })
 
         return this
+    }
+
+    build() {
+        const permissions = this.#permissions;
+
+        return {
+            can<Res extends keyof Resources>(resource: Res, action: Resources[Res]["action"], data?: Resources[Res]["condition"]) {
+                return permissions[resource].some(permission => {
+                    if (permission.action !== action) return false
+
+                    // do we have valid data argument
+                    const validData = permission.condition == null ||
+                        data == null ||
+                        Object.entries(permission.condition).every(([key, value]) => {
+                            return data[key as keyof typeof permission.condition] === value
+                        })
+
+                    return validData
+                })
+            }
+        }
     }
 }
